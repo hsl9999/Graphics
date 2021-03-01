@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnityEditor.Rendering.Universal
 {
-    internal static partial class UniversalRenderPipelineCameraUI
+    internal static partial class URPCameraUI
     {
         public class Styles
         {
