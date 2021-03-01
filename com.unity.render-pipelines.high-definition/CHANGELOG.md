@@ -36,10 +36,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed issue with compositor custom pass hooks added/removed repeatedly (case 1315971).
 - Fixed: SSR with transparent (case 1311088)
 - Fixed decals in material debug display.
+- Fixed nullref when adding a volume component in a Volume profile asset (case 1317156).
+- Fixed decal normal for double sided materials (case 1312065).
+- Fixed multiple HDRP Frame Settings panel issues: missing "Refraction" Frame Setting. Fixing ordering of Rough Distortion, it should now be under the Distortion setting.
+- Fixed issue with automatic exposure settings not updating scene view.
+- Fixed issue with velocity rejection in post-DoF TAA. Fixing this reduces ghosting (case 1304381).
+- Fixed missing option to use POM on emissive for tessellated shaders.
+- Fixed resize IES when already baked in the Atlas 1299233
+- Fixed an issue in the planar reflection probe convolution.
+- Fixed Rough Distortion frame setting not greyed out when Distortion is disabled in HDRP Asset
+- Fixed ability to override AlphaToMask FrameSetting while camera in deferred lit shader mode
+- Fixed issue with physically-based DoF computation and transparent materials with depth-writes ON.
+- Fixed issue of accessing default frame setting stored in current HDRPAsset instead fo the default HDRPAsset
+- Fixed SSGI frame setting not greyed out while SSGI is disabled in HDRP Asset
 
 ### Changed
 - Updated the tooltip for the Decal Angle Fade property (requires to enable Decal Layers in both HDRP asset and Frame settings) (case 1308048).
 - Tidy up of platform abstraction code for shader optimization.
+- Display a warning help box when decal atlas is out of size.
 
 ## [10.3.1] - 2020-01-26
 
