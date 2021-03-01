@@ -9,7 +9,7 @@ namespace UnityEditor.Rendering.Universal
     {
         public class Styles
         {
-            public static GUIContent commonCameraSettingsText = EditorGUIUtility.TrTextContent("Projection", "These settings control how the camera views the world.");
+            public static GUIContent projectionSettingsText = EditorGUIUtility.TrTextContent("Projection", "These settings control how the camera views the world.");
             public static GUIContent environmentSettingsText = EditorGUIUtility.TrTextContent("Environment", "These settings control what the camera background looks like.");
             public static GUIContent outputSettingsText = EditorGUIUtility.TrTextContent("Output", "These settings control how the camera output is formatted.");
             public static GUIContent renderingSettingsText = EditorGUIUtility.TrTextContent("Rendering", "These settings control for the specific rendering features for this camera.");
@@ -39,9 +39,9 @@ namespace UnityEditor.Rendering.Universal
 #if ENABLE_VR && ENABLE_XR_MODULE
             public static GUIContent[] xrTargetEyeOptions =
             {
-            EditorGUIUtility.TrTextContent("None"),
-            EditorGUIUtility.TrTextContent("Both"),
-        };
+                EditorGUIUtility.TrTextContent("None"),
+                EditorGUIUtility.TrTextContent("Both"),
+            };
             public static int[] xrTargetEyeValues = { 0, 1 };
             public static readonly GUIContent xrTargetEye = EditorGUIUtility.TrTextContent("Target Eye", "Allows XR rendering if target eye sets to both eye. Disable XR for this camera otherwise.");
 #endif
@@ -56,33 +56,35 @@ namespace UnityEditor.Rendering.Universal
 
             public static GUIContent[] cameraBackgroundType =
             {
-            EditorGUIUtility.TrTextContent("Skybox"),
-            EditorGUIUtility.TrTextContent("Solid Color"),
-            EditorGUIUtility.TrTextContent("Uninitialized"),
-        };
+                EditorGUIUtility.TrTextContent("Skybox"),
+                EditorGUIUtility.TrTextContent("Solid Color"),
+                EditorGUIUtility.TrTextContent("Uninitialized"),
+            };
 
             public static int[] cameraBackgroundValues = { 0, 1, 2 };
 
             // Using the pipeline Settings
             public static GUIContent[] displayedCameraOptions =
             {
-            EditorGUIUtility.TrTextContent("Off"),
-            EditorGUIUtility.TrTextContent("Use Pipeline Settings"),
-        };
+                EditorGUIUtility.TrTextContent("Off"),
+                EditorGUIUtility.TrTextContent("Use Pipeline Settings"),
+            };
 
             public static int[] cameraOptions = { 0, 1 };
 
-            // Camera Types
+            // Camera Types, transform the names of the enums that are returned as string to actual GUIContents.
             public static GUIContent[] cameraTypeNames { get; } =
-                Enum.GetNames(typeof(CameraRenderType)).Select(typeName => new GUIContent(typeName)).ToArray();
+                Enum.GetNames(typeof(CameraRenderType))
+                    .Select(typeName => new GUIContent(typeName))
+                    .ToArray();
 
             // Beautified anti-aliasing options
             public static GUIContent[] antialiasingOptions =
             {
-            EditorGUIUtility.TrTextContent("None"),
-            EditorGUIUtility.TrTextContent("Fast Approximate Anti-aliasing (FXAA)"),
-            EditorGUIUtility.TrTextContent("Subpixel Morphological Anti-aliasing (SMAA)"),
-        };
+                EditorGUIUtility.TrTextContent("None"),
+                EditorGUIUtility.TrTextContent("Fast Approximate Anti-aliasing (FXAA)"),
+                EditorGUIUtility.TrTextContent("Subpixel Morphological Anti-aliasing (SMAA)"),
+            };
             public static int[] antialiasingValues = { 0, 1, 2 };
         }
     }

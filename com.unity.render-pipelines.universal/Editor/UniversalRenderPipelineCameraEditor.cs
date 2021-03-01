@@ -406,7 +406,7 @@ namespace UnityEditor.Rendering.Universal
 
         void DrawCommonSettings()
         {
-            m_CommonCameraSettingsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_CommonCameraSettingsFoldout.value, URPCameraUI.Styles.commonCameraSettingsText);
+            m_CommonCameraSettingsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_CommonCameraSettingsFoldout.value, URPCameraUI.Styles.projectionSettingsText);
             if (m_CommonCameraSettingsFoldout.value)
             {
                 settings.DrawProjection();
