@@ -353,6 +353,12 @@ Shader "HDRP/Lit"
     #if defined(_TRANSPARENT_WRITES_MOTION_VEC) && defined(_SURFACE_TYPE_TRANSPARENT)
     #define _WRITE_TRANSPARENT_MOTION_VECTOR
     #endif
+    
+    // In this shader, the heightmap implies depth offsets away from the camera.
+    #ifdef _HEIGHTMAP
+    #define _CONSERVATIVE_DEPTH_OFFSET
+    #endif
+
     //-------------------------------------------------------------------------------------
     // Include
     //-------------------------------------------------------------------------------------
