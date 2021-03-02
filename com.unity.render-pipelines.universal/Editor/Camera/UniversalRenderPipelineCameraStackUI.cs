@@ -240,8 +240,7 @@ namespace UnityEditor.Rendering.Universal
                 EditorGUI.LabelField(rect, cam.name, type.ToString());
 
                 // Printing if Post Processing is on or not.
-                var isPostActive = cam.gameObject.GetComponent<UniversalAdditionalCameraData>().renderPostProcessing;
-                if (isPostActive)
+                if (cam.gameObject.GetComponent<UniversalAdditionalCameraData>().renderPostProcessing)
                 {
                     Rect selectRect = new Rect(rect.width - 20, rect.y, 50, EditorGUIUtility.singleLineHeight);
                     EditorGUI.LabelField(selectRect, "PP");
@@ -269,13 +268,13 @@ namespace UnityEditor.Rendering.Universal
         }
 
         /// <summary>
-        /// Renders the list of camera stacks and the possible errors that might be found
+        /// Renders the list of camera stack and the possible errors that might be found
         /// </summary>
         public void OnGUI()
         {
             EditorGUILayout.Space();
 
-            // Obtain the size of the list ( all the items, + the + - buttons ), and expand to the inspector width and draw it
+            // Obtain the size of the list ( all the items and the buttons ), and expand to the inspector width and draw it
             var rect = GUILayoutUtility.GetRect(1, m_LayerList.GetHeight(), GUILayout.ExpandWidth(true));
             m_LayerList.DoList(EditorGUI.IndentedRect(rect));
 
