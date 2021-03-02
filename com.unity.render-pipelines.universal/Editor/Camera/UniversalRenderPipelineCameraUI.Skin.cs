@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnityEditor.Rendering.Universal
 {
-    internal static partial class URPCameraUI
+    internal static partial class UniversalRenderPipelineCameraUI
     {
         public class Styles
         {
@@ -71,12 +71,6 @@ namespace UnityEditor.Rendering.Universal
             };
 
             public static int[] cameraOptions = { 0, 1 };
-
-            // Camera Types, transform the names of the enums that are returned as string to actual GUIContents.
-            public static GUIContent[] cameraTypeNames { get; } =
-                Enum.GetNames(typeof(CameraRenderType))
-                    .Select(typeName => new GUIContent(typeName))
-                    .ToArray();
 
             // Beautified anti-aliasing options
             public static GUIContent[] antialiasingOptions =
