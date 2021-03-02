@@ -105,13 +105,6 @@ namespace UnityEditor.Rendering.Universal
         ReorderableList m_LayerList;
 
         public Camera camera { get { return target as Camera; } }
-        static List<Camera> k_Cameras;
-
-        List<Camera> validCameras = new List<Camera>();
-        // This is the valid list of types, so if we need to add more types we just add it here.
-        List<CameraRenderType> validCameraTypes = new List<CameraRenderType> {CameraRenderType.Overlay};
-        List<Camera> errorCameras = new List<Camera>();
-        Texture2D m_ErrorIcon;
 
         // Temporary saved bools for foldout header
         SavedBool m_CommonCameraSettingsFoldout;

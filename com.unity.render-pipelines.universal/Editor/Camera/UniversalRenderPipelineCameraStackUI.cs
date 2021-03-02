@@ -174,8 +174,8 @@ namespace UnityEditor.Rendering.Universal
             {
                 return cameras
                     .Where(camera =>
-                        !EditorUtility.IsPersistent(camera) &&
-                        !EditorSceneManager.IsPreviewScene(camera.gameObject.scene) && camera.gameObject.scene == scene)
+                    !EditorUtility.IsPersistent(camera) &&
+                    !EditorSceneManager.IsPreviewScene(camera.gameObject.scene) && camera.gameObject.scene == scene)
                     .ToArray();
             }
 
