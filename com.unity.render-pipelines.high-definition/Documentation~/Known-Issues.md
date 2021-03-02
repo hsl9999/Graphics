@@ -14,28 +14,37 @@ UnityEditor.EditorApplication:Internal_CallGlobalEventHandler()
 
 To fix this issue, restart the Unity editor.
 
-## Collab and Config
+## Using Collaborate and the HDRP Config package
 
-If you installed locally the HDRP config package and use Collaborate as your versionning software, then the local package is not included in the versioning.
+If your Unity Project uses a local version of the [HDRP config package](HDRP-Config-Package.md) and also uses [Collaborate](https://unity.com/unity/features/collaborate), be aware that, by default, Collaborate does not track the changes you make in the local version of the package. There are two ways to set up Collaborate to track changes you make to the HDRP config package:
 
-### Scripted workaround:
-We provide a script to do the workaround, it requires:
+* [Scripted setup](#scripted-setup): This method uses a python script and requires you to have Python 3.9.
+* [Manual setup](#manual-setup): This method involves moving files from the local HDRP config package to the Assets folder.
+
+### Scripted setup
+HDRP provides a python script which automatically sets up your Project so that Collaborate works correctly with the HDRP Config package. This method requires:
 1. Python 3.9
-1. The right to create symbolinc links on windows. (You can execute as an administrator the script or give your user the right to create symbolic links)
+2. The right to create symbolic links on windows. To do this, you can either
+   * Execute the script as an administrator.
+   * Give your user the right to create symbolic links.
 
 To create and version the HDRP config package:
-1. Install the config package from the Wizard
-1. Run the utility script bundled in hdrp: `Packages/com.unity.render-pipelines.high-definition-config/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`
-1. In Unity, check in all modified and added files
+1. Install the config package from the [HDRP Wizard](Render-Pipeline-Wizard.md). To do this, click the **Install Configuration Editable Package** button at the top of the [HDRP Wizard](Render-Pipeline-Wizard.md) window.
+2. Run the utility script bundled in HDRP: `Packages/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
+3. In the Unity Collaborate interface, check in all the modified and added files.
 
-To download from Collaborate or sync from collab the project:
-1. Clone or sync from Collaborate the project
-1. Run the utility script bundled in hdrp: `Packages/com.unity.render-pipelines.high-definition-config/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`
+To download from Collaborate or sync the Project from Collaborate:
+1. Clone or sync the Project from Collaborate.
+2. Run the utility script bundled in HDRP: `Packages/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
 
-### Manual workaround
-We will need to move files in order to get them versionned by Collaborate.
+### Manual setup
+If you do not have Python 3.9, or prefer a manual solution, this section explains how to manually setup Collaborate and the HDRP Config package so they work together. This method involves restructuring your Project's folder structure so that the files that you want Collaborate to track are inside the Assets folder. This method requires:
 
-So, you will need to go from this folder structure (only important files are shown for readibility):
+* The right to create symbolic links on windows. To do this, you can either
+  * Execute the script as an administrator.
+  * Give your user the right to create symbolic links.
+
+The following is a before and after representation of what your Project's folder structure should look like. For the sake of readability, it only includes important files. If you used the **Install Configuration Editable Package** button at the top of the [HDRP Wizard](Render-Pipeline-Wizard.md) window to install the local version of the package, your folder structure should look like this:
 * Root
     * LocalPackages
         * com.unity.render-pipelines.high-definition-config
@@ -48,13 +57,13 @@ So, you will need to go from this folder structure (only important files are sho
             * Documentation~
     * Assets
 
-To:
+To make Collaborate track the relevant files in the local HDRP Config package, make your Project's folder structure align with the following:
 * Root
     * LocalPackages
         * com.unity.render-pipelines.high-definition-config
             * package.json
             * Runtime
-                * ShaderConfig.cs.hlsl (hard symlink to Assets/Packages/com.unity.render-pipelines.high-definition-config/ShaderConfig.cs.hlsl)
+                * ShaderConfig.cs.hlsl (create a hard symbolic link to Assets/Packages/com.unity.render-pipelines.high-definition-config/ShaderConfig.cs.hlsl. For information on how to do this, see [Creating the symbolic link](#creating-the-symbolic-link).)
     * Assets
         * Packages
             * com.unity.render-pipelines.high-definition-config
@@ -64,7 +73,11 @@ To:
                     * Unity.RenderPipelines.HighDefinition.Config.Runtime.asmdef
                 * Tests
 
-Note: _Hidden files and folders will be ignored by Collaborate, so they won't be versionned and be lost. But only non essential files are concerned, like the mostly empty Documentation folder of the config package._
+**Note**: Collaborate ignores hidden files and folders. However, the only hidden files and folders in the HDRP Config package are non-essential, such as the mostly empty Documentation~ folder (the documentation for the HDRP Config package is in the HDRP package documentation [here](HDRP-Config-Package.md)).
 
-Note: _On windows you can use the `mklink /H <link> <target>` command to create the symbolic link. This will require the Create Symbolic Link right for your user, you can also use an Administrator shell._
-Note: _On linux and OSX, you can use the `ln -s <target> <link>` command to create thr symbolic link._
+#### Creating the symbolic link
+
+To create the symbolic link:
+
+* On Windows: Use the `mklink /H <link> <target>` command. This requires the [Create Symbolic Link](https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/create-symbolic-links) right for your user, you can also use an Administrator shell.
+* On Linux and OSX: Use the `ln -s <target> <link>` command.
