@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Deprecated GetShadowFade in Shadows.hlsl, use GetMainLightShadowFade or GetAdditionalLightShadowFade.
 - Improved shadow cascade GUI drawing with pixel perfect, hover and focus functionalities.
 - Shadow fade now uses border value for calculating shadow fade distance and fall off linearly.
+- Improved URP profiling scopes. Remove low impact scopes from the command buffer for a small performance gain. Fix the name and invalid scope for context.submit() scope. Change the default profiling name of ScriptableRenderPass to Unnamed_ScriptableRenderPass.
 - Using the same MaterialHeaderScope for material editor as HDRP is using
 
 ## [11.0.0] - 2020-10-21
@@ -104,6 +105,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added a supported MSAA samples count check, so the actual supported MSAA samples count value can be assigned to RenderTexture descriptors.
 - Bloom in Gamma color-space now more closely matches Linear color-space, this will mean project using Bloom and Gamma color-space may need to adjust Bloom Intensity to match previous look.
 - Autodesk Interactive Shader Graph files and folders containing them were renamed. The new file paths do not have spaces.
+- Moved `FinalPostProcessPass` to `AfterRenderingPostProcessing` event from `AfterRendering`. This allows user pass to execute before and after `FinalPostProcessPass` and `CapturePass` to capture everything.
 - Changed shader keywords of main light shadow from toggling to enumerating.
 - Always use "High" quality normals, which normalizes the normal in pixel shader. "Low" quality normals looked too much like a bug.
 - Re-enabled implicit MSAA resolve to backbuffer on Metal MacOS.
