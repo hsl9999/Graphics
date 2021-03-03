@@ -64,7 +64,6 @@ namespace UnityEditor.Rendering.Universal
                 return m_SerializedCamera.cameras
                     .GetArrayElementAtIndex(index)
                     .objectReferenceValue as Camera;
-
             }
         }
 
