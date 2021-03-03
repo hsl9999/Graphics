@@ -8,16 +8,15 @@ namespace UnityEditor.Rendering.HighDefinition
     [VolumeComponentEditor(typeof(ScreenSpaceReflection))]
     class HDScreenSpaceReflectionEditor : VolumeComponentWithQualityEditor
     {
-        SerializedDataParameter m_Enable;
-        SerializedDataParameter m_UsedAlgorithm;
-        SerializedDataParameter m_RayTracing;
-
         // Shared data
+        SerializedDataParameter m_Enable;
+        SerializedDataParameter m_Tracing;
         SerializedDataParameter m_MinSmoothness;
         SerializedDataParameter m_SmoothnessFadeStart;
         SerializedDataParameter m_ReflectSky;
 
         // SSR Only
+        SerializedDataParameter m_UsedAlgorithm;
         SerializedDataParameter m_ScreenFadeDistance;
         SerializedDataParameter m_RayMaxIterations;
         SerializedDataParameter m_DepthBufferThickness;
@@ -32,6 +31,9 @@ namespace UnityEditor.Rendering.HighDefinition
         SerializedDataParameter m_AffectsSmoothSurfaces;
         SerializedDataParameter m_Mode;
 
+        // Hybrid
+        SerializedDataParameter m_MaxRayIterationsRT;
+
         // Performance
         SerializedDataParameter m_FullResolution;
 
@@ -42,16 +44,16 @@ namespace UnityEditor.Rendering.HighDefinition
         public override void OnEnable()
         {
             var o = new PropertyFetcher<ScreenSpaceReflection>(serializedObject);
-            m_Enable                        = Unpack(o.Find(x => x.enabled));
-            m_UsedAlgorithm                 = Unpack(o.Find(x => x.usedAlgorithm));
-            m_RayTracing                    = Unpack(o.Find(x => x.rayTracing));
 
             // Shared data
+            m_Enable                        = Unpack(o.Find(x => x.enabled));
+            m_Tracing                       = Unpack(o.Find(x => x.tracing));
             m_MinSmoothness                 = Unpack(o.Find(x => x.minSmoothness));
             m_SmoothnessFadeStart           = Unpack(o.Find(x => x.smoothnessFadeStart));
             m_ReflectSky                    = Unpack(o.Find(x => x.reflectSky));
 
             // SSR Data
+            m_UsedAlgorithm                 = Unpack(o.Find(x => x.usedAlgorithm));
             m_DepthBufferThickness          = Unpack(o.Find(x => x.depthBufferThickness));
             m_RayMaxIterations              = Unpack(o.Find(x => x.rayMaxIterations));
             m_ScreenFadeDistance            = Unpack(o.Find(x => x.screenFadeDistance));
@@ -66,8 +68,11 @@ namespace UnityEditor.Rendering.HighDefinition
             m_AffectsSmoothSurfaces         = Unpack(o.Find(x => x.affectSmoothSurfaces));
             m_Mode                          = Unpack(o.Find(x => x.mode));
 
+            // Hybrid
+            m_MaxRayIterationsRT            = Unpack(o.Find(x => x.rayMaxIterationsRT));
+
             // Performance
-            m_FullResolution                = Unpack(o.Find(x => x.fullResolution));
+            m_FullResolution = Unpack(o.Find(x => x.fullResolution));
 
             // Quality
             m_SampleCount                   = Unpack(o.Find(x => x.sampleCount));
@@ -77,7 +82,7 @@ namespace UnityEditor.Rendering.HighDefinition
         }
 
         static public readonly GUIContent k_Algo = EditorGUIUtility.TrTextContent("Algorithm", "The screen space reflection algorithm used.");
-        static public readonly GUIContent k_RayTracingText = EditorGUIUtility.TrTextContent("Ray Tracing (Preview)", "Enable ray traced reflections.");
+        static public readonly GUIContent k_TracingText = EditorGUIUtility.TrTextContent("Tracing", "Controls the technique used to compute the reflection.");
         static public readonly GUIContent k_ReflectSkyText = EditorGUIUtility.TrTextContent("Reflect Sky", "When enabled, SSR handles sky reflection.");
         static public readonly GUIContent k_LayerMaskText = EditorGUIUtility.TrTextContent("Layer Mask", "Layer mask used to include the objects for screen space reflection.");
         static public readonly GUIContent k_MinimumSmoothnessText = EditorGUIUtility.TrTextContent("Minimum Smoothness", "Controls the smoothness value at which HDRP activates SSR and the smoothness-controlled fade out stops.");
@@ -116,7 +121,7 @@ namespace UnityEditor.Rendering.HighDefinition
             }
         }
 
-        void RayTracingPerformanceModeGUI()
+        void RayTracingPerformanceModeGUI(bool hybrid)
         {
             base.OnInspectorGUI();
 
@@ -129,6 +134,8 @@ namespace UnityEditor.Rendering.HighDefinition
                 PropertyField(m_RayLength, k_RayLengthText);
                 PropertyField(m_ClampValue, k_ClampValueText);
                 PropertyField(m_FullResolution, k_FullResolutionText);
+                if (hybrid)
+                    PropertyField(m_MaxRayIterationsRT);
                 PropertyField(m_Denoise, k_DenoiseText);
                 using (new HDEditorUtils.IndentScope())
                 {
@@ -138,7 +145,7 @@ namespace UnityEditor.Rendering.HighDefinition
             }
         }
 
-        void RayTracedReflectionGUI()
+        void RayTracedReflectionGUI(RayCastingMode tracingMode)
         {
             HDRenderPipelineAsset currentAsset = HDRenderPipeline.currentAsset;
             PropertyField(m_ReflectSky, k_ReflectSkyText);
@@ -146,32 +153,36 @@ namespace UnityEditor.Rendering.HighDefinition
 
             if (currentAsset.currentPlatformRenderPipelineSettings.supportedRayTracingMode == RenderPipelineSettings.SupportedRayTracingMode.Both)
             {
-                PropertyField(m_Mode, k_ModeText);
-
-                using (new HDEditorUtils.IndentScope())
+                if (tracingMode == RayCastingMode.RayTracing)
                 {
-                    switch (m_Mode.value.GetEnumValue<RayTracingMode>())
+                    PropertyField(m_Mode, k_ModeText);
+
+                    using (new HDEditorUtils.IndentScope())
                     {
-                        case RayTracingMode.Performance:
+                        switch (m_Mode.value.GetEnumValue<RayTracingMode>())
                         {
-                            RayTracingPerformanceModeGUI();
+                            case RayTracingMode.Performance:
+                                    RayTracingPerformanceModeGUI(false);
+                                break;
+                            case RayTracingMode.Quality:
+                                    RayTracingQualityModeGUI();
+                                break;
                         }
-                        break;
-                        case RayTracingMode.Quality:
-                        {
-                            RayTracingQualityModeGUI();
-                        }
-                        break;
                     }
                 }
+                else
+                    RayTracingPerformanceModeGUI(true);
             }
             else if (currentAsset.currentPlatformRenderPipelineSettings.supportedRayTracingMode == RenderPipelineSettings.SupportedRayTracingMode.Quality)
             {
-                RayTracingQualityModeGUI();
+                if (tracingMode == RayCastingMode.RayTracing)
+                    RayTracingQualityModeGUI();
+                else
+                    EditorGUILayout.HelpBox("The current HDRP Asset does not support the hybrid mode which is only available in performance mode.", MessageType.Error, wide: true);
             }
             else
             {
-                RayTracingPerformanceModeGUI();
+                RayTracingPerformanceModeGUI(tracingMode == RayCastingMode.Hybrid);
             }
         }
 
@@ -186,17 +197,22 @@ namespace UnityEditor.Rendering.HighDefinition
                 return;
             }
 
-            PropertyField(m_Enable, EditorGUIUtility.TrTextContent("Enable"));
+            PropertyField(m_Enable);
 
-            // The ray tracing enabling checkbox is only displayed if the asset supports ray tracing
-            bool rayTracingSupported = HDRenderPipeline.pipelineSupportsRayTracing;
-            if (rayTracingSupported)
-                PropertyField(m_RayTracing, k_RayTracingText);
+            // If ray tracing is supported display the tracing choice
+            if (HDRenderPipeline.pipelineSupportsRayTracing)
+                PropertyField(m_Tracing, k_TracingText);
+
+            // Flag to track if the ray tracing parameters were displayed
+            RayCastingMode tracingMode = m_Tracing.value.GetEnumValue<RayCastingMode>();
+            bool rayTracingSettingsDisplayed = HDRenderPipeline.pipelineSupportsRayTracing
+                                                && m_Tracing.overrideState.boolValue
+                                                && tracingMode != RayCastingMode.RayMarching;
 
             // The rest of the ray tracing UI is only displayed if the asset supports ray tracing and the checkbox is checked.
-            if (rayTracingSupported && m_RayTracing.overrideState.boolValue && m_RayTracing.value.boolValue)
+            if (rayTracingSettingsDisplayed)
             {
-                RayTracedReflectionGUI();
+                RayTracedReflectionGUI(tracingMode);
             }
             else
             {
@@ -232,8 +248,8 @@ namespace UnityEditor.Rendering.HighDefinition
                 settings = new QualitySettingsBlob();
 
             // RTR
-            if (HDRenderPipeline.pipelineSupportsRayTracing && m_RayTracing.overrideState.boolValue &&
-                m_RayTracing.value.boolValue)
+            if (HDRenderPipeline.pipelineSupportsRayTracing && m_Tracing.overrideState.boolValue &&
+                m_Tracing.value.GetEnumValue<RayCastingMode>() == RayCastingMode.RayMarching)
             {
                 settings.Save<float>(m_MinSmoothness);
                 settings.Save<float>(m_SmoothnessFadeStart);
@@ -254,8 +270,8 @@ namespace UnityEditor.Rendering.HighDefinition
         public override void LoadSettingsFromObject(QualitySettingsBlob settings)
         {
             // RTR
-            if (HDRenderPipeline.pipelineSupportsRayTracing && m_RayTracing.overrideState.boolValue &&
-                m_RayTracing.value.boolValue)
+            if (HDRenderPipeline.pipelineSupportsRayTracing && m_Tracing.overrideState.boolValue &&
+                m_Tracing.value.GetEnumValue<RayCastingMode>() == RayCastingMode.RayMarching)
             {
                 settings.TryLoad<float>(ref m_MinSmoothness);
                 settings.TryLoad<float>(ref m_SmoothnessFadeStart);
@@ -274,8 +290,8 @@ namespace UnityEditor.Rendering.HighDefinition
         public override void LoadSettingsFromQualityPreset(RenderPipelineSettings settings, int level)
         {
             // RTR
-            if (HDRenderPipeline.pipelineSupportsRayTracing && m_RayTracing.overrideState.boolValue &&
-                m_RayTracing.value.boolValue)
+            if (HDRenderPipeline.pipelineSupportsRayTracing && m_Tracing.overrideState.boolValue &&
+                m_Tracing.value.GetEnumValue<RayCastingMode>() == RayCastingMode.RayMarching)
             {
                 CopySetting(ref m_MinSmoothness, settings.lightingQualitySettings.RTRMinSmoothness[level]);
                 CopySetting(ref m_SmoothnessFadeStart, settings.lightingQualitySettings.RTRSmoothnessFadeStart[level]);
@@ -294,7 +310,7 @@ namespace UnityEditor.Rendering.HighDefinition
         public override bool QualityEnabled()
         {
             // Quality always used for SSR
-            if (!HDRenderPipeline.rayTracingSupportedBySystem || !m_RayTracing.value.boolValue)
+            if (!HDRenderPipeline.rayTracingSupportedBySystem || m_Tracing.value.GetEnumValue<RayCastingMode>() == RayCastingMode.RayMarching)
                 return true;
 
             // Handle the quality usage for RTGI

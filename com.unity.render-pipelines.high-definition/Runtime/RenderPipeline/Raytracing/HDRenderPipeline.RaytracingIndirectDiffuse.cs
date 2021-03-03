@@ -56,6 +56,12 @@ namespace UnityEngine.Rendering.HighDefinition
             deferredParameters.halfResolution = !settings.fullResolution;
             deferredParameters.rayCountType = (int)RayCountValues.DiffuseGI_Deferred;
 
+            // Ray marching
+            deferredParameters.hybridTracing = settings.tracing.value == RayCastingMode.Hybrid && hdCamera.frameSettings.litShaderMode == LitShaderMode.Deferred;
+            deferredParameters.raySteps = settings.raySteps;
+            deferredParameters.nearClipPlane = hdCamera.camera.nearClipPlane;
+            deferredParameters.farClipPlane = hdCamera.camera.farClipPlane;
+
             // Camera data
             deferredParameters.width = hdCamera.actualWidth;
             deferredParameters.height = hdCamera.actualHeight;
@@ -66,8 +72,10 @@ namespace UnityEngine.Rendering.HighDefinition
             deferredParameters.rayBinSizeResult = m_RayBinSizeResult;
             deferredParameters.accelerationStructure = RequestAccelerationStructure();
             deferredParameters.lightCluster = RequestLightCluster();
+            deferredParameters.mipChainBuffer = m_DepthBufferMipChainInfo.GetOffsetBufferData(m_DepthPyramidMipLevelOffsetsBuffer);
 
             // Shaders
+            deferredParameters.rayMarchingCS = m_Asset.renderPipelineRayTracingResources.rayMarchingCS;
             deferredParameters.gBufferRaytracingRT = m_Asset.renderPipelineRayTracingResources.gBufferRaytracingRT;
             deferredParameters.deferredRaytracingCS = m_Asset.renderPipelineRayTracingResources.deferredRaytracingCS;
             deferredParameters.rayBinningCS = m_Asset.renderPipelineRayTracingResources.rayBinningCS;
@@ -329,7 +337,7 @@ namespace UnityEngine.Rendering.HighDefinition
         }
 
         TextureHandle RenderIndirectDiffusePerformance(RenderGraph renderGraph, HDCamera hdCamera,
-            TextureHandle depthPyramid, TextureHandle stencilBuffer, TextureHandle normalBuffer, TextureHandle motionVectors, TextureHandle historyValidationTexture,
+            in PrepassOutput prepassOutput, TextureHandle historyValidationTexture,
             TextureHandle rayCountTexture, Texture skyTexture,
             ShaderVariablesRaytracing shaderVariablesRaytracing)
         {
@@ -339,18 +347,18 @@ namespace UnityEngine.Rendering.HighDefinition
             // Fetch all the settings
             GlobalIllumination settings = hdCamera.volumeStack.GetComponent<GlobalIllumination>();
 
-            TextureHandle directionBuffer = DirGenRTGI(renderGraph, hdCamera, settings, depthPyramid, normalBuffer);
+            TextureHandle directionBuffer = DirGenRTGI(renderGraph, hdCamera, settings, prepassOutput.depthPyramidTexture, prepassOutput.normalBuffer);
 
             DeferredLightingRTParameters deferredParamters = PrepareIndirectDiffuseDeferredLightingRTParameters(hdCamera);
-            TextureHandle lightingBuffer = DeferredLightingRT(renderGraph, in deferredParamters, directionBuffer, depthPyramid, normalBuffer, skyTexture, rayCountTexture);
+            TextureHandle lightingBuffer = DeferredLightingRT(renderGraph, in deferredParamters, directionBuffer, prepassOutput, skyTexture, rayCountTexture);
 
-            rtgiResult = UpscaleRTGI(renderGraph, hdCamera, settings, depthPyramid, normalBuffer, lightingBuffer, directionBuffer);
+            rtgiResult = UpscaleRTGI(renderGraph, hdCamera, settings, prepassOutput.depthPyramidTexture, prepassOutput.normalBuffer, lightingBuffer, directionBuffer);
 
             // Denoise if required
-            rtgiResult = DenoiseRTGI(renderGraph, hdCamera, rtgiResult, depthPyramid, normalBuffer, motionVectors, historyValidationTexture);
+            rtgiResult = DenoiseRTGI(renderGraph, hdCamera, rtgiResult, prepassOutput.depthPyramidTexture, prepassOutput.normalBuffer, prepassOutput.resolvedMotionVectorsBuffer, historyValidationTexture);
 
             // Adjust the weight
-            rtgiResult = AdjustRTGIWeight(renderGraph, hdCamera, rtgiResult, depthPyramid, stencilBuffer);
+            rtgiResult = AdjustRTGIWeight(renderGraph, hdCamera, rtgiResult, prepassOutput.depthPyramidTexture, prepassOutput.stencilBuffer);
 
             return rtgiResult;
         }
@@ -539,7 +547,7 @@ namespace UnityEngine.Rendering.HighDefinition
         }
 
         TextureHandle RenderRayTracedIndirectDiffuse(RenderGraph renderGraph, HDCamera hdCamera,
-            TextureHandle depthPyramid, TextureHandle stencilBuffer, TextureHandle normalBuffer, TextureHandle motionVectors, TextureHandle historyValidationTexture,
+            in PrepassOutput prepassOutput, TextureHandle historyValidationTexture,
             Texture skyTexture, TextureHandle rayCountTexture,
             ShaderVariablesRaytracing shaderVariablesRaytracing)
         {
@@ -550,19 +558,19 @@ namespace UnityEngine.Rendering.HighDefinition
 
             // Based on what the asset supports, follow the volume or force the right mode.
             if (m_Asset.currentPlatformRenderPipelineSettings.supportedRayTracingMode == RenderPipelineSettings.SupportedRayTracingMode.Both)
-                qualityMode = giSettings.mode.value == RayTracingMode.Quality;
+                qualityMode = (giSettings.tracing.value == RayCastingMode.RayTracing) && (giSettings.mode.value == RayTracingMode.Quality);
             else
                 qualityMode = m_Asset.currentPlatformRenderPipelineSettings.supportedRayTracingMode == RenderPipelineSettings.SupportedRayTracingMode.Quality;
 
 
             if (qualityMode)
                 rtreflResult = RenderIndirectDiffuseQuality(renderGraph, hdCamera,
-                    depthPyramid, stencilBuffer, normalBuffer, motionVectors, historyValidationTexture,
+                    prepassOutput.depthPyramidTexture, prepassOutput.stencilBuffer, prepassOutput.normalBuffer, prepassOutput.motionVectorsBuffer, historyValidationTexture,
                     rayCountTexture, skyTexture,
                     shaderVariablesRaytracing);
             else
                 rtreflResult = RenderIndirectDiffusePerformance(renderGraph, hdCamera,
-                    depthPyramid, stencilBuffer, normalBuffer, motionVectors, historyValidationTexture,
+                    prepassOutput, historyValidationTexture,
                     rayCountTexture, skyTexture,
                     shaderVariablesRaytracing);
 
