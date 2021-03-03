@@ -30,12 +30,12 @@ HDRP provides a python script which automatically sets up your Project so that C
 
 To create and version the HDRP config package:
 1. Install the config package from the [HDRP Wizard](Render-Pipeline-Wizard.md). To do this, click the **Install Configuration Editable Package** button at the top of the [HDRP Wizard](Render-Pipeline-Wizard.md) window.
-2. Run the utility script bundled in HDRP: `Packages/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
+2. Run the utility script bundled in HDRP: `Library/PackageCache/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
 3. In the Unity Collaborate interface, check in all the modified and added files.
 
 To download from Collaborate or sync the Project from Collaborate:
 1. Clone or sync the Project from Collaborate.
-2. Run the utility script bundled in HDRP: `Packages/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
+2. Run the utility script bundled in HDRP: `Library/PackageCache/com.unity.render-pipelines.high-definition/Documentation~/tools/local_package_collab.py -p <PATH_TO_YOUR_UNITY_PROJECT>`.
 
 ### Manual setup
 If you do not have Python 3.9, or prefer a manual solution, this section explains how to manually setup Collaborate and the HDRP Config package so they work together. This method involves restructuring your Project's folder structure so that the files that you want Collaborate to track are inside the Assets folder. This method requires:
