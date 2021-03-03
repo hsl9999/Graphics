@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added color and intensity customization for Decals.
 - New function in GeometryTools.hlsl to calculate triangle edge and full triangle culling.
 - Added support for the PlayStation 5 platform.
+- Added support the XboxSeries platform.
+- Added the default quality settings to the HDRP asset for RTAO, RTR and RTGI (case 1304370).
+- Added a history rejection criterion based on if the pixel was moving in world space (case 1302392).
+- Added new API in CachedShadowManager
+- Added an additional check in the "check scene for ray tracing" (case 1314963).
+- API to allow OnDemand shadows to not render upon placement in the Cached Shadow Atlas.
+- Exposed update upon light movement for directional light shadows in UI.
 
 ### Fixed
 - Fixed probe volumes debug views.
@@ -68,6 +75,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed light gizmo showing shadow near plane when shadows are disabled.
 - Fixed path tracing alpha channel support (case 1304187).
 - Fixed shadow matte not working with ambient occlusion when MSAA is enabled
+- Fixed an issue in shadergraph when switch from a RenderingPass (case 1307653)
+- Fixed LookDev environment library assignement after leaving playmode.
+- Fixed a locale issue with the diffusion profile property values in ShaderGraph on PC where comma is the decimal separator.
+- Fixed error in the RTHandle scale of Depth Of Field when TAA is enabled.
+- Fixed Quality Level set to the last one of the list after a Build (case 1307450)
+- Fixed wrong shader / properties assignement to materials created from 3DsMax 2021 Physical Material. (case 1293576)
+- Fixed Emissive color property from Autodesk Interactive materials not editable in Inspector. (case 1307234)
+- Fixed Warnings about "SceneIdMap" missing script in eye material sample scene
+- Fixed resize IES when already baked in the Atlas 1299233
+- Fixed an exception when opening the color picker in the material UI (case 1307143).
+- Fixed lights shadow frustum near and far planes.
+- Fixed various issues with non-temporal SSAO and rendergraph.
+- Fixed white flashes on camera cuts on volumetric fog.
+- Fixed light layer issue when performing editing on multiple lights.
+- Fixed an issue where selection in a debug panel would reset when cycling through enum items.
+- Fixed material keywords with fbx importer.
+- Fixed lightmaps not working properly with shader graphs in ray traced reflections (case 1305335).
+- Fixed skybox for ortho cameras.
+- Fixed issue when debug full screen 'Transparent Screen Space Reflection' do not take in consideration debug exposure
+- Fixed sub-shadow rendering for cached shadow maps.
+- Fixed PCSS filtering issues with cached shadow maps.
+- Fix screen being over-exposed when changing very different skies.
+- Fixed incorrect debug wireframe overlay on tessellated geometry (using littessellation), caused by the picking pass using an incorrect camera matrix.
+- Fixed nullref in layered lit shader editor.
+- Fix issue with Depth of Field CoC debug view.
+- Fixed an issue where first frame of SSAO could exhibit ghosting artefacts.
+- Fixed an issue with the mipmap generation internal format after rendering format change.
+- Fixed performance issue with ShaderGraph and Alpha Test
+- Fixed error when increasing the maximum planar reflection limit (case 1306530).
+- Fixed alpha output in debug view and AOVs when using shadow matte (case 1311830).
+- Fixed an issue with transparent meshes writing their depths and recursive rendering (case 1314409).
+- Fixed issue with compositor custom pass hooks added/removed repeatedly (case 1315971).
+- Fixed: SSR with transparent (case 1311088)
+- Fixed decals in material debug display.
+- Fixed update upon light movement for directional light rotation.
 
 ### Changed
 - Removed the material pass probe volumes evaluation mode.
@@ -89,6 +131,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Change the source value for the ray tracing frame index iterator from m_FrameCount to the camera frame count (case 1301356).
 - Removed backplate from rendering of lighting cubemap as it did not really work conceptually and caused artefacts.
 - Change some light unit slider value ranges to better reflect the lighting scenario.
+- Transparent materials created by the Model Importer are set to not cast shadows. ( case 1295747)
+- Updated the tooltip for the Decal Angle Fade property (requires to enable Decal Layers in both HDRP asset and Frame settings) (case 1308048).
+- The RTAO's history is now discarded if the occlusion caster was moving (case 1303418).
+- Unifying the history validation pass so that it is only done once for the whole frame and not per effect.
+- Tidy up of platform abstraction code for shader optimization.
+- Changed Path Tracing's maximum intensity from clamped (0 to 100) to positive value (case 1310514).
 
 ## [10.3.0] - 2020-12-01
 
